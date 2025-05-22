@@ -1,0 +1,53 @@
+name: Terraform EKS - DESTROY
+
+on:
+  workflow_dispatch:               # manual; change to push/main if you like
+
+permissions:                       # needed for OIDC federation
+  id-token: write
+  contents: read
+  pull-requests: write             # so the plan can comment on PRs
+
+env:
+  AWS_REGION: us-east-1
+  CLUSTER_NAME: demo-eks
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1️⃣  Authenticate to AWS via GitHub OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::233736837022:role/gha-eks-admin   # <-- your IAM role
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 2️⃣  Set up Terraform CLI + cache plugins
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Show env
+        run: |
+          echo "Shell sees AWS_REGION = $AWS_REGION"
+          echo "Interpolation gives region=${{ env.AWS_REGION }}"  
+
+      # 3️⃣  Terraform init
+      - name: Terraform Init
+        run: |
+          terraform init -backend-config="bucket=eks-influxdb-starter-bucket" \
+            -backend-config="key=eks-demo/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}"
+
+# 4)  Destroy (auto-approved)
+      - name: Terraform Destroy
+        run: |
+          terraform destroy -auto-approve

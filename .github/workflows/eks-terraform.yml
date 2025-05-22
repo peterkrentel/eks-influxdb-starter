@@ -43,7 +43,7 @@ jobs:
       # 3️⃣  Terraform init
       - name: Terraform Init
         run: |
-          terraform init -backend-config="bucket=eks-influxdb-starter" \
+          terraform init -backend-config="bucket=eks-influxdb-starter-bucket" \
             -backend-config="key=eks-demo/terraform.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
 

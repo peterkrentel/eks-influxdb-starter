@@ -35,12 +35,17 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Show env
+        run: |
+          echo "Shell sees AWS_REGION = $AWS_REGION"
+          echo "Interpolation gives region=${{ env.AWS_REGION }}"  
+
       # 3️⃣  Terraform init
       - name: Terraform Init
         run: |
           terraform init -backend-config="bucket=eks-influxdb-starter" \
             -backend-config="key=eks-demo/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+            -backend-config="region=$AWS_REGION"
 
       # 4️⃣  Terraform plan
       - name: Terraform Plan

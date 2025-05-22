@@ -45,7 +45,7 @@ jobs:
         run: |
           terraform init -backend-config="bucket=eks-influxdb-starter" \
             -backend-config="key=eks-demo/terraform.tfstate" \
-            -backend-config="region=$AWS_REGION"
+            -backend-config="region=${{ env.AWS_REGION }}"
 
       # 4️⃣  Terraform plan
       - name: Terraform Plan

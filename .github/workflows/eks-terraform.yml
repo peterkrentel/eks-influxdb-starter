@@ -1,0 +1,82 @@
+name: Terraform EKS
+
+on:
+  workflow_dispatch:               # manual; change to push/main if you like
+
+permissions:                       # needed for OIDC federation
+  id-token: write
+  contents: read
+  pull-requests: write             # so the plan can comment on PRs
+
+env:
+  AWS_REGION: us-east-1
+  CLUSTER_NAME: demo-eks
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1️⃣  Authenticate to AWS via GitHub OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/gha-eks-admin   # <-- your IAM role
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 2️⃣  Set up Terraform CLI + cache plugins
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # 3️⃣  Terraform init
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=my-tf-state-bucket" \
+                            -backend-config="key=eks-demo/terraform.tfstate" \
+                            -backend-config="region=${{ env.AWS_REGION }}"
+
+      # 4️⃣  Terraform plan
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -input=false -out=tfplan
+
+      # 5️⃣  Show the plan in workflow output & PR comment
+      - name: Show Plan
+        run: terraform show -no-color tfplan
+
+      # Optional: add plan as PR comment
+      - name: Comment plan on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: infra/plan.txt
+        env:
+          CONTENT: |
+            ```
+            ${{ steps.plan.outputs.stdout }}
+            ```
+
+      # 6️⃣  Terraform apply (auto-approved for workflow_dispatch)
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch'
+        run: terraform apply -input=false -auto-approve tfplan
+
+      # 7️⃣  Save kubeconfig for downstream jobs
+      - name: Write kubeconfig file
+        if: always() && steps.apply.outcome == 'success'
+        run: |
+          echo "${{ steps.apply.outputs.stdout }}" | \
+            sed -n '/kubeconfig/{n; p;}' > kubeconfig.yaml
+
+      - name: Upload kubeconfig
+        if: always() && steps.apply.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubeconfig
+          path: infra/kubeconfig.yaml

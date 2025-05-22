@@ -28,7 +28,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/gha-eks-admin   # <-- your IAM role
+          role-to-assume: arn:aws:iam::233736837022:role/gha-eks-admin   # <-- your IAM role
           aws-region: ${{ env.AWS_REGION }}
 
       # 2️⃣  Set up Terraform CLI + cache plugins

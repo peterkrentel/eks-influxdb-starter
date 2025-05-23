@@ -41,5 +41,10 @@ module "eks" {
       principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
       policy_associations = []
     }
+      gha-eks-admin = {
+      kubernetes_groups = ["eks-admins"]
+      principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
+      policy_associations = []
+    }
   }
 }

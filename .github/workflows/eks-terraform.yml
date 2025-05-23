@@ -1,4 +1,4 @@
-name: Terraform EKS
+name: Terraform EKS - CREATE
 
 on:
   workflow_dispatch:               # manual; change to push/main if you like

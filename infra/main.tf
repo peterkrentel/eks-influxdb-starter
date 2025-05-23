@@ -34,12 +34,4 @@ module "eks" {
       max_size       = 5
     }
   }
-
-  access_entries = {
-    ecs-workshop-user = {
-      kubernetes_groups = ["system:masters"]
-      principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
-      policy_associations = []
-    }
-  }
 }

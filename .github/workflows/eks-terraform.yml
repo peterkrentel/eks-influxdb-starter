@@ -73,16 +73,37 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: terraform apply -input=false -auto-approve tfplan
 
-      # 7️⃣  Save kubeconfig for downstream jobs
-      - name: Write kubeconfig file
-        if: always() && steps.apply.outcome == 'success'
-        run: |
-          echo "${{ steps.apply.outputs.stdout }}" | \
-            sed -n '/kubeconfig/{n; p;}' > kubeconfig.yaml
+      # # 7️⃣  Save kubeconfig for downstream jobs
+      # - name: Write kubeconfig file
+      #   if: always() && steps.apply.outcome == 'success'
+      #   run: |
+      #     echo "${{ steps.apply.outputs.stdout }}" | \
+      #       sed -n '/kubeconfig/{n; p;}' > kubeconfig.yaml
 
-      - name: Upload kubeconfig
-        if: always() && steps.apply.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: kubeconfig
-          path: infra/kubeconfig.yaml
+      # - name: Upload kubeconfig
+      #   if: always() && steps.apply.outcome == 'success'
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: kubeconfig
+      #     path: infra/kubeconfig.yaml
+      
+      - name: Update kubeconfig
+        run: aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ env.CLUSTER_NAME }}
+          
+      - name: Create eks-admins ClusterRoleBinding
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: eks-admins-binding
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+          - kind: Group
+            name: eks-admins
+            apiGroup: rbac.authorization.k8s.io
+          EOF
+      

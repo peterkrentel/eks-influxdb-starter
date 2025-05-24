@@ -18,7 +18,7 @@ module "eks" {
   version = "~> 20.0"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.30"
+  cluster_version = "1.32"
 
   cluster_endpoint_public_access = true
 
@@ -41,10 +41,42 @@ module "eks" {
       principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
       policy_associations = []
     }
-      gha-eks-admin = {
+    gha-eks-admin = {
       kubernetes_groups = ["eks-admins"]
       principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
       policy_associations = []
     }
+  }
+}
+
+
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = [
+      "eks",
+      "get-token",
+      "--cluster-name",
+      module.eks.cluster_name
+    ]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "eks_admins" {
+  metadata {
+    name = "eks-admins-binding"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+  subject {
+    kind      = "Group"
+    name      = "eks-admins"
+    api_group = "rbac.authorization.k8s.io"
   }
 }

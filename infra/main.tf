@@ -23,7 +23,7 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  eks_access_entries = {
+  access_entries = {
     ecs-workshop-user = {
       kubernetes_groups    = ["eks-admins"]
       principal_arn        = "arn:aws:iam::233736837022:user/ecs-workshop-user"

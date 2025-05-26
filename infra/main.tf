@@ -15,56 +15,45 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 21.0"
+  version = "~> 20.36.0"
 
   cluster_name    = var.cluster_name
   cluster_version = "1.32"
 
-  cluster_endpoint_public_access = true
-  #enable_cluster_creator_admin = true
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
 
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
-  control_plane_subnet_ids = module.vpc.private_subnets
-
-  eks_managed_node_groups = {
-    default = {
-      instance_types = [var.node_instance_type]
-      desired_size   = var.desired_capacity
-      min_size       = 1
-      max_size       = 5
+  eks_access_entries = {
+    ecs-workshop-user = {
+      kubernetes_groups    = ["eks-admins"]
+      principal_arn        = "arn:aws:iam::233736837022:user/ecs-workshop-user"
+      policy_associations  = []
+    }
+    gha-eks-admin = {
+      kubernetes_groups    = ["eks-admins"]
+      principal_arn        = "arn:aws:iam::233736837022:role/gha-eks-admin"
+      policy_associations  = []
     }
   }
-  manage_aws_auth = true
-  aws_auth_roles = [
-    {
-      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/gha-eks-admin"
-      username = "gha-eks-admin"
-      groups   = ["system:masters"]
-    }
-  ]
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/ecs-workshop-user"
-      username = "ecs-workshop-user"
-      groups   = ["system:masters"]
-    }
-  ]
-
-  #   eks_access_entries = {
-  #   ecs-workshop-user = {
-  #     kubernetes_groups = ["system:masters"]
-  #     principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
-  #     policy_associations = []
-  #   }
-  #   gha-eks-admin = {
-  #     kubernetes_groups = ["system:masters"]
-  #     principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
-  #     policy_associations = []
-  #   }
-  # }
 }
 
+module "eks_node_group_default" {
+  source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
+  version = "~> 20.36.0"
+
+  cluster_name    = module.eks.cluster_name
+  cluster_version = module.eks.cluster_version
+  subnet_ids      = module.vpc.private_subnets
+
+  name            = "default"
+  instance_types  = [var.node_instance_type]
+  desired_size    = var.desired_capacity
+  min_size        = 1
+  max_size        = 5
+
+  ami_type        = "AL2_x86_64"
+  capacity_type   = "ON_DEMAND"
+}
 
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
@@ -81,18 +70,18 @@ provider "kubernetes" {
   }
 }
 
-# resource "kubernetes_cluster_role_binding" "eks_admins" {
-#   metadata {
-#     name = "eks-admins-binding"
-#   }
-#   role_ref {
-#     api_group = "rbac.authorization.k8s.io"
-#     kind      = "ClusterRole"
-#     name      = "cluster-admin"
-#   }
-#   subject {
-#     kind      = "Group"
-#     name      = "eks-admins"
-#     api_group = "rbac.authorization.k8s.io"
-#   }
-# }
+resource "kubernetes_cluster_role_binding" "eks_admins" {
+  metadata {
+    name = "eks-admins-binding"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+  subject {
+    kind      = "Group"
+    name      = "eks-admins"
+    api_group = "rbac.authorization.k8s.io"
+  }
+}

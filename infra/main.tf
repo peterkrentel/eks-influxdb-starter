@@ -28,7 +28,7 @@ module "eks" {
       rolearn  = "arn:aws:iam::233736837022:role/gha-eks-admin"
       username = "gha-eks-admin"
       groups   = ["system:masters"]
-    }
+    },
     {
       rolearn  = "arn:aws:iam::233736837022:user/ecs-workshop-user"
       username = "ecs-workshop-user"

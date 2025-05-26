@@ -65,18 +65,18 @@ provider "kubernetes" {
   }
 }
 
-resource "kubernetes_cluster_role_binding" "eks_admins" {
-  metadata {
-    name = "eks-admins-binding"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = "cluster-admin"
-  }
-  subject {
-    kind      = "Group"
-    name      = "eks-admins"
-    api_group = "rbac.authorization.k8s.io"
-  }
-}
+# resource "kubernetes_cluster_role_binding" "eks_admins" {
+#   metadata {
+#     name = "eks-admins-binding"
+#   }
+#   role_ref {
+#     api_group = "rbac.authorization.k8s.io"
+#     kind      = "ClusterRole"
+#     name      = "cluster-admin"
+#   }
+#   subject {
+#     kind      = "Group"
+#     name      = "eks-admins"
+#     api_group = "rbac.authorization.k8s.io"
+#   }
+# }

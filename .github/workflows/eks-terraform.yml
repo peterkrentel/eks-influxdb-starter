@@ -64,16 +64,16 @@ jobs:
       - name: Show Plan
         run: terraform show -no-color tfplan
 
-      # Optional: add plan as PR comment
-      - name: Comment plan on PR
-        if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          path: infra/plan.txt
-        env:
-          CONTENT: |
-            ```
-            ${{ steps.plan.outputs.stdout }}
+      # # Optional: add plan as PR comment
+      # - name: Comment plan on PR
+      #   if: github.event_name == 'pull_request'
+      #   uses: marocchino/sticky-pull-request-comment@v2
+      #   with:
+      #     path: infra/plan.txt
+      #   env:
+      #     CONTENT: |
+      #       ```
+      #       ${{ steps.plan.outputs.stdout }}
             ```
 
       # 6️⃣  Terraform apply (auto-approved for workflow_dispatch)

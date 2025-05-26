@@ -53,7 +53,8 @@ jobs:
         run: |
           terraform init -upgrade -backend-config="bucket=eks-influxdb-starter-bucket" \
             -backend-config="key=eks-demo/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+            -backend-config="region=${{ env.AWS_REGION }}" \
+          terraform import 'module.eks.aws_kms_alias.this[0]' arn:aws:kms:us-east-1:233736837022:alias/eks/demo-eks
 
       # 4️⃣  Terraform plan
       - name: Terraform Plan

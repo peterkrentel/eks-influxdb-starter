@@ -74,7 +74,7 @@ jobs:
       #     CONTENT: |
       #       ```
       #       ${{ steps.plan.outputs.stdout }}
-            ```
+      #      ```
 
       # 6️⃣  Terraform apply (auto-approved for workflow_dispatch)
       - name: Terraform Apply

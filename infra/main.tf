@@ -45,6 +45,7 @@ module "eks_node_group_default" {
   cluster_name    = module.eks.cluster_name
   cluster_version = module.eks.cluster_version
   subnet_ids      = module.vpc.private_subnets
+  cluster_service_cidr = "172.20.0.0/16"
 
   name            = "default"
   instance_types  = [var.node_instance_type]

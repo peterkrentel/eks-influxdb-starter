@@ -21,7 +21,7 @@ module "eks" {
   cluster_version = "1.32"
 
   cluster_endpoint_public_access = true
-  enable_cluster_creator_admin = true
+  #enable_cluster_creator_admin = true
 
   vpc_id                   = module.vpc.vpc_id
   subnet_ids               = module.vpc.private_subnets
@@ -35,19 +35,34 @@ module "eks" {
       max_size       = 5
     }
   }
+  manage_aws_auth = true
+  aws_auth_roles = [
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/gha-eks-admin"
+      username = "gha-eks-admin"
+      groups   = ["system:masters"]
+    }
+  ]
+  aws_auth_users = [
+    {
+      userarn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/ecs-workshop-user"
+      username = "ecs-workshop-user"
+      groups   = ["system:masters"]
+    }
+  ]
 
-    eks_access_entries = {
-    ecs-workshop-user = {
-      kubernetes_groups = ["system:masters"]
-      principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
-      policy_associations = []
-    }
-    gha-eks-admin = {
-      kubernetes_groups = ["system:masters"]
-      principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
-      policy_associations = []
-    }
-  }
+  #   eks_access_entries = {
+  #   ecs-workshop-user = {
+  #     kubernetes_groups = ["system:masters"]
+  #     principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
+  #     policy_associations = []
+  #   }
+  #   gha-eks-admin = {
+  #     kubernetes_groups = ["system:masters"]
+  #     principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
+  #     policy_associations = []
+  #   }
+  # }
 }
 
 

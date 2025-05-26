@@ -1,6 +1,6 @@
 variable "cluster_name" {
   type    = string
-  default = "demo-eks"
+  default = "demo-eks-v00"
 }
 
 variable "aws_region" {

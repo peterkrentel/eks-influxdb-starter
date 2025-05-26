@@ -15,7 +15,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.36.0"
+  version = "~> 19.21.0"
 
   cluster_name    = var.cluster_name
   cluster_version = "1.32"
@@ -23,18 +23,19 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  access_entries = {
-    ecs-workshop-user = {
-      kubernetes_groups    = ["eks-admins"]
-      principal_arn        = "arn:aws:iam::233736837022:user/ecs-workshop-user"
-      policy_associations  = []
+  aws_auth_roles = [
+    {
+      rolearn  = "arn:aws:iam::233736837022:role/gha-eks-admin"
+      username = "gha-eks-admin"
+      groups   = ["system:masters"]
     }
-    gha-eks-admin = {
-      kubernetes_groups    = ["eks-admins"]
-      principal_arn        = "arn:aws:iam::233736837022:role/gha-eks-admin"
-      policy_associations  = []
+    {
+      rolearn  = "arn:aws:iam::233736837022:user/ecs-workshop-user"
+      username = "ecs-workshop-user"
+      groups   = ["system:masters"]
     }
-  }
+  ]
+
 }
 
 module "eks_node_group_default" {

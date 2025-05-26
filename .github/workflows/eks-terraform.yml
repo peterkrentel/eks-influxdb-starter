@@ -95,8 +95,8 @@ jobs:
       #     name: kubeconfig
       #     path: infra/kubeconfig.yaml
       
-      - name: Update kubeconfig
-        run: aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ env.CLUSTER_NAME }}
+      # - name: Update kubeconfig
+      #   run: aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ env.CLUSTER_NAME }}
           
       # - name: Create eks-admins ClusterRoleBinding
       #   run: |

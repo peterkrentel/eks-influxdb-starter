@@ -15,7 +15,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+  version = "~> 19.0"
 
   cluster_name    = var.cluster_name
   cluster_version = "1.32"
@@ -35,18 +35,18 @@ module "eks" {
     }
   }
 
-    access_entries = {
-    ecs-workshop-user = {
-      kubernetes_groups = ["eks-admins"]
-      principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
-      policy_associations = []
-    }
-    gha-eks-admin = {
-      kubernetes_groups = ["eks-admins"]
-      principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
-      policy_associations = []
-    }
-  }
+  #   access_entries = {
+  #   ecs-workshop-user = {
+  #     kubernetes_groups = ["eks-admins"]
+  #     principal_arn     = "arn:aws:iam::233736837022:user/ecs-workshop-user"
+  #     policy_associations = []
+  #   }
+  #   gha-eks-admin = {
+  #     kubernetes_groups = ["eks-admins"]
+  #     principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
+  #     policy_associations = []
+  #   }
+  # }
 }
 
 

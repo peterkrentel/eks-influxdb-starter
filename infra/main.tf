@@ -46,6 +46,17 @@ module "eks" {
       principal_arn     = "arn:aws:iam::233736837022:role/gha-eks-admin"
       policy_associations = []
     }
+    manage_aws_auth_configmap = true
+
+    map_users = {
+      "arn:aws:iam::233736837022:user/ecs-workshop-user" = "eks-admins"
+      "arn:aws:iam::233736837022:role/gha-eks-admin"     = "eks-admins"
+       groups   = ["system:masters"]
+    }
+    map_roles = {
+      "arn:aws:iam::233736837022:role/gha-eks-admin" = "eks-admins"
+       groups   = ["system:masters"]
+    }
   }
 }
 

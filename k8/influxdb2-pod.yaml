@@ -1,0 +1,33 @@
+cat <<EOF > influxdb2-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: influxdb2
+  labels:
+    app: influxdb2
+spec:
+  containers:
+    - name: influxdb2
+      image: influxdb:2.7
+      ports:
+        - containerPort: 8086
+      volumeMounts:
+        - name: influxdb2-storage
+          mountPath: /var/lib/influxdb2
+  volumes:
+    - name: influxdb2-storage
+      emptyDir: {}  # replace with PVC in production
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb2
+spec:
+  selector:
+    app: influxdb2
+  ports:
+    - protocol: TCP
+      port: 8086
+      targetPort: 8086
+  type: LoadBalancer
+EOF

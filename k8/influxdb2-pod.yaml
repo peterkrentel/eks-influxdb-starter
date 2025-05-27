@@ -1,4 +1,5 @@
-cat <<EOF > influxdb2-pod.yaml
+#script for yaml
+#cat <<EOF > influxdb2-pod.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -30,4 +31,4 @@ spec:
       port: 8086
       targetPort: 8086
   type: LoadBalancer
-EOF
+#EOF

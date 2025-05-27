@@ -1,0 +1,4 @@
+kubectl apply -f influxdb2-pod.yaml
+kubectl get svc influxdb2
+http://<external-ip>:8086
+https://chatgpt.com/c/68350752-3bd4-8010-877e-e2638923c315
